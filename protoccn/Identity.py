@@ -1,0 +1,2 @@
+class Identity(object):
+    pass

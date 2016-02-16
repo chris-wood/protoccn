@@ -1,7 +1,8 @@
-# import PortalWrapper
+import Portal
 
 class Producer(object):
-    def __init__(self, name, prefix = ""):
+    def __init__(self, client, name, prefix = ""):
+        self.client = client
         self.name = name
         self.prefix = prefix
         self.handlers = {}
@@ -14,23 +15,17 @@ class Producer(object):
         :param options: TODO
         """
         def decorator(f):
-            print "setup a function: %s" % (f.__name__)
             self.handlers[prefix] = f
             return f
         return decorator
 
-    def hello(self, message):
-        print "hello!"
-        pass
-
     def run(self):
         # Create the portal
-        self.client = PortalWrapper.PortalWrapper()
         self.client.listen(self.prefix)
 
         # Jump into the listening function
         while True:
-            request = self.client.receive_raw()
+            request = self.client.receive_raw() # this returns an interest!
             name = request.name
 
             # Perform LPM with the handler function and invoke the right request
@@ -46,23 +41,16 @@ class Producer(object):
             self.client.reply(request.name, response)
         pass
 
+class TestProducer(Producer):
+    def __init__(self, name, prefix = ""):
+        Producer.__init__(self, Portal.TestPortal(), name, prefix)
+
     def __str__(self):
-        # TODO: return a generic
-        return ""
+        return self.__class__.__name__
 
-app = Producer(__name__, "/foo/bar")
+class CCNProducer(Producer):
+    def __init__(self, name, prefix = ""):
+        Producer.__init__(self, Portal.CCNPortal(), name, prefix)
 
-@app.handle("/baz")
-def baz(baz):
-    print baz
-    pass
-
-# @app.prefix("/car")
-# def car(car):
-#     print "car!"
-#     return car
-
-baz("test") # during the run function, these functions would be invoked based on the name.
-
-# blast off
-# app.run()
+    def __str__(self):
+        return self.__class__.__name__

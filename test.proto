@@ -1,0 +1,11 @@
+package application;
+
+
+
+message Request {
+  required bytes payload = 1;
+}
+
+message Response {
+  repeated bytes payload = 1;
+}
