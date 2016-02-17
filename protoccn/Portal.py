@@ -17,7 +17,7 @@ class Portal(object):
     def listen(self, prefix):
         pass
 
-    def receive_raw(self):
+    def receive(self):
         pass
 
     def reply(self, name, data):
@@ -40,7 +40,7 @@ class TestPortal(Portal):
     def listen(self, prefix):
         self.prefixes.append(prefix)
 
-    def receive_raw(self):
+    def receive(self):
         request = str(self.receive_counter)
         self.receive_counter += 1
         interest = Interest(Name("/test/portal"), payload = request)
@@ -75,55 +75,55 @@ class CCNPortal(Portal):
         else:
             return None
 
-    def get_by_identifier(self, name, identifier):
-        interest = Interest(Name(name), content_object_hash=identifier)
-        self.portal.send(interest)
-        response = self.portal.receive()
-        if isinstance(response, ContentObject):
-            return response.getPayload()
-        else:
-            return None
-
-    def force_push(self, name, data):
-        interest = Interest(Name(name), payload=data)
-        try:
-            self.portal.send(interest)
-        except Portal.CommunicationsError as x:
-            sys.stderr.write("ccnxPortal_Write failed: %d\n" % (x.errno,))
-        pass
-
-    def push(self, name, data, prefix):
-        # 1. chunk the data
-        chunks = []
-        chunker = Chunker(data)
-        for chunk in chunker:
-            chunks.append(chunks)
-
-        # 2. send a pull request
-        request = PullRequest()
-        request.name = prefix
-        request.chunks = len(chunks)
-        interest = Interest(Name(name), payload=request.SerializeToString())
-        try:
-            self.portal.send(interest)
-        except Portal.CommunicationsError as x:
-            sys.stderr.write("ccnxPortal_Write failed: %d\n" % (x.errno,))
-        pass
-
-        # 3. respond to each chunk
-        sent = []
-        num_chunks = len(chunks)
-        while (len(sent) < num_chunks):
-            name, payload = self.receive_raw()
-            if name.startsWith(prefix):
-                chunk_number = int(name[-1])
-                chunk = chunks[chunk_number]
-                self.reply(name, chunk)
-
-                if chunk_number not in sent:
-                    sent.append(chunk_number)
-            else:
-                pass
+    # def get_by_identifier(self, name, identifier):
+    #     interest = Interest(Name(name), content_object_hash=identifier)
+    #     self.portal.send(interest)
+    #     response = self.portal.receive()
+    #     if isinstance(response, ContentObject):
+    #         return response.getPayload()
+    #     else:
+    #         return None
+    #
+    # def force_push(self, name, data):
+    #     interest = Interest(Name(name), payload=data)
+    #     try:
+    #         self.portal.send(interest)
+    #     except Portal.CommunicationsError as x:
+    #         sys.stderr.write("ccnxPortal_Write failed: %d\n" % (x.errno,))
+    #     pass
+    #
+    # def push(self, name, data, prefix):
+    #     # 1. chunk the data
+    #     chunks = []
+    #     chunker = Chunker(data)
+    #     for chunk in chunker:
+    #         chunks.append(chunks)
+    #
+    #     # 2. send a pull request
+    #     request = PullRequest()
+    #     request.name = prefix
+    #     request.chunks = len(chunks)
+    #     interest = Interest(Name(name), payload=request.SerializeToString())
+    #     try:
+    #         self.portal.send(interest)
+    #     except Portal.CommunicationsError as x:
+    #         sys.stderr.write("ccnxPortal_Write failed: %d\n" % (x.errno,))
+    #     pass
+    #
+    #     # 3. respond to each chunk
+    #     sent = []
+    #     num_chunks = len(chunks)
+    #     while (len(sent) < num_chunks):
+    #         name, payload = self.receive_raw()
+    #         if name.startsWith(prefix):
+    #             chunk_number = int(name[-1])
+    #             chunk = chunks[chunk_number]
+    #             self.reply(name, chunk)
+    #
+    #             if chunk_number not in sent:
+    #                 sent.append(chunk_number)
+    #         else:
+    #             pass
 
     def listen(self, prefix):
         try:
@@ -133,14 +133,6 @@ class CCNPortal(Portal):
         return True
 
     def receive(self):
-        request = self.portal.receive()
-        if isinstance(request, Interest):
-            return str(request.name), request.getPayload()
-        else:
-            pass
-        return None, None
-
-    def receive_raw(self):
         request = self.portal.receive()
         if isinstance(request, Interest):
             return request

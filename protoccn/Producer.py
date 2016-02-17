@@ -25,7 +25,7 @@ class Producer(object):
 
         # Jump into the listening function
         while True:
-            request = self.client.receive_raw() # this returns an interest!
+            request = self.client.receive() # this returns an interest!
             name = request.name
 
             # Perform LPM with the handler function and invoke the right request
