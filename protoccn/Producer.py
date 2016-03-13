@@ -31,11 +31,16 @@ class Producer(object):
             # Perform LPM with the handler function and invoke the right request
             target = ""
             for prefix in self.handlers:
-                if name.startsWith(prefix) and len(prefix) > target:
+                full_prefix = self.prefix + prefix
+                name = str(name)
+                if name.startswith(full_prefix) and len(prefix) > len(target):
                     target = prefix
 
             # Pass the request to the right method
-            response = self.handlers[target](request)
+            if len(target) > 0:
+                response = self.handlers[target](request.payload)
+            else:
+                response = "FAIL"
 
             # Return the response
             self.client.reply(request.name, response)

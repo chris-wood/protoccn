@@ -3,8 +3,6 @@
 import sys, tempfile, time, json, random, errno, os, threading
 
 from Hasher import *
-
-sys.path.append('/Users/cwood/Projects/PARC/Repo/build/lib/python2.7/site-packages')
 from CCNx import *
 
 class Portal(object):
