@@ -7,13 +7,7 @@ class Producer(object):
         self.prefix = prefix
         self.handlers = {}
 
-    # TODO: make prefix a regex for names
     def handle(self, prefix, **options):
-        """ TODO
-
-        :param prefix: TODO
-        :param options: TODO
-        """
         def decorator(f):
             self.handlers[prefix] = f
             return f
@@ -38,7 +32,8 @@ class Producer(object):
 
             # Pass the request to the right method
             if len(target) > 0:
-                response = self.handlers[target](request.payload)
+                suffix = str(name)[len(target) + len(self.prefix) + 1:]
+                response = self.handlers[target](suffix, request.payload)
             else:
                 response = "FAIL"
 

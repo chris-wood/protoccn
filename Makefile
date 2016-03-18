@@ -1,5 +1,5 @@
 test:
-	nosetests
+	PYTHONPATH=/Users/cwood/PARC/side/Python/usr/lib/python2.7/site-packages nosetests
 
 coverage:
-	nosetests --with-coverage
+	PYTHONPATH=/Users/cwood/PARC/side/Python/usr/lib/python2.7/site-packages nosetests --with-coverage

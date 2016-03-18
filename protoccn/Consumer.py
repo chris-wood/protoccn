@@ -16,6 +16,14 @@ class Consumer(object):
     def install_sink(self, target, **options):
         def decorator(f):
             def wrapped_f(*args):
+                suffix = f(*args)
+                return self.request(target + "/" + suffix)
+            return wrapped_f
+        return decorator
+
+    def install_rpc(self, target, **options):
+        def decorator(f):
+            def wrapped_f(*args):
                 payload = f(*args)
                 return self.request_with_payload(target, payload)
             return wrapped_f

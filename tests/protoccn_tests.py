@@ -11,13 +11,34 @@ from protoccn.Producer import *
 # def teardown():
 #     pass
 
-def test_consumer_install():
+def test_consumer_install_sink():
     app = TestConsumer(__name__, "/my/name")
 
     test_payload = "cool payload"
 
     # @app.install
     @app.install_sink("/foo/bar/car")
+    def get_car():
+        return "random"
+
+    got = get_car()
+
+    input_name = "/foo/bar/car/random"
+    hasher = Hasher()
+    print input_name
+    expected = hasher.hash(input_name + "")
+
+    print got, expected
+
+    assert got == expected
+
+def test_consumer_install_rpc():
+    app = TestConsumer(__name__, "/my/name")
+
+    test_payload = "cool payload"
+
+    # @app.install
+    @app.install_rpc("/foo/bar/car")
     def get_car():
         return test_payload
 
@@ -53,8 +74,8 @@ def test_producer_handle():
     print "here"
 
     @app.handle("/plus_one")
-    def plus_one(baz):
-        return counter + 1
+    def plus_one(data, val):
+        return counter + val
 
-    got = plus_one("test")
-    assert got == (counter + 1)
+    got = plus_one("test", 10)
+    assert got == (counter + 10)
